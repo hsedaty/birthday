@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hello Kitty 8-Bit Birthday</title>
+  <!-- Import 8-bit font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: url("background.jpg") no-repeat center/cover;
+      image-rendering: pixelated;
+      font-family: 'Press Start 2P', cursive;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    #confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Center the email icon */
+    .email-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+    }
+
+    /* Email Icon */
+    #email {
+      width: 364px;
+      height: 364px;
+      transform: translate(0, 50px);
+      background: url("mail-unopened.png") no-repeat center/contain;
+      image-rendering: pixelated;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Notification badge centered on the icon */
+    #email:not(.opened)::after {
+      content: "1";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(20px, -50px);
+      background: red;
+      color: white;
+      font-size: 12px;
+      padding: 12px 12px;
+      border-radius: 50%;
+      border: 3px solid black;
+      font-family: 'Press Start 2P', cursive;
+      box-shadow: 2px 2px 0 #000;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    #email.opened {
+      pointer-events: none;
+      background: url("mail-opened.png") no-repeat center/contain;
+    }
+
+    /* Polaroid style */
+    .polaroid {
+      position: absolute;
+      width: 175px;
+      height: 210px;
+      background: white;
+      border: 4px solid black;
+      padding: 5px;
+      box-shadow: 4px 4px 0 black;
+      transform: scale(0);
+      opacity: 0;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      image-rendering: pixelated;
+      z-index: 5;
+    }
+
+    .polaroid img {
+      width: 100%;
+      height: auto;
+      image-rendering: pixelated;
+    }
+
+    .show {
+      transform: scale(1) rotate(var(--angle));
+      opacity: 1;
+    }
+
+    .birthday-text {
+      position: fixed;
+      bottom: 100px;
+      left: 0;
+      width: 100vw;
+      text-align: center;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 5rem;
+      color: #fff;
+      text-shadow: 4px 4px 0 #ff69b4, 10px 10px 0 #000;
+      letter-spacing: 4px;
+      line-height: 1.2;
+      z-index: 50;
+      user-select: none;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.6s cubic-bezier(.68,-0.55,.27,1.55), transform 0.6s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    .birthday-text.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Center polaroids in a row below the mail icon */
+    .polaroid-center {
+      position: fixed;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -70%);
+      display: flex;
+      flex-direction: column;
+      gap: 82px;
+      z-index: 20;
+      pointer-events: none;
+      width: auto;
+      align-items: center;
+    }
+    .polaroid-row {
+      display: flex;
+      gap: 100px;
+      justify-content: center;
+      align-items: center;
+    }
+    .polaroid-center .polaroid {
+      position: static;
+      pointer-events: auto;
+    }
+
+    .top-hellokitty {
+      position: fixed;
+      top: 200px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.7);
+      z-index: 200;
+      opacity: 0;
+      transition: opacity 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+      pointer-events: none;
+      width: 700px;
+      height: auto;
+      image-rendering: pixelated;
+    }
+    .top-hellokitty.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <!-- Hello Kitty image at the top, hidden initially -->
+  <img src="hellokitty.png" alt="Hello Kitty" class="top-hellokitty" id="top-hellokitty">
+
+  <!-- Centered Email Icon -->
+  <div class="email-container">
+    <div id="email"></div>
+  </div>
+
+  <!-- Centered Polaroids -->
+  <div class="polaroid-center">
+    <div class="polaroid-row">
+      <div class="polaroid" style="--angle:-15deg;">
+        <img src="kitty1.png" alt="Polaroid 1">
+        <a>"happy birthday!"</a>
+      </div>
+      <div class="polaroid" style="--angle:-7deg;">
+        <img src="kitty2.png" alt="Polaroid 2">
+      </div>
+      <div class="polaroid" style="--angle:0deg;">
+        <img src="kitty3.png" alt="Polaroid 3">
+      </div>
+    </div>
+    <div class="polaroid-row">
+      <div class="polaroid" style="--angle:7deg;">
+        <img src="kitty4.png" alt="Polaroid 4">
+      </div>
+      <div class="polaroid" style="--angle:12deg;">
+        <img src="kitty5.png" alt="Polaroid 5">
+      </div>
+      <div class="polaroid" style="--angle:18deg;">
+        <img src="kitty6.png" alt="Polaroid 6">
+      </div>
+    </div>
+  </div>
+
+  <div class="birthday-text">HAPPY BIRTHDAY NADA!!!</div>
+
+  <script>
+    // Confetti animation
+    const confettiCanvas = document.getElementById('confetti');
+    const ctx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+
+    function resizeCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function randomColor() {
+      const colors = ['#ff69b4', '#fff', '#f00', '#ff0', '#0ff', '#0f0', '#00f', '#f0f'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function createConfetti() {
+      for (let i = 0; i < 150; i++) {
+        confettiParticles.push({
+          x: Math.random() * confettiCanvas.width,
+          y: Math.random() * -confettiCanvas.height,
+          r: 6 + Math.random() * 8,
+          d: Math.random() * 150,
+          color: randomColor(),
+          tilt: Math.random() * 10 - 10,
+          tiltAngleIncremental: (Math.random() * 0.07) + .05,
+          tiltAngle: 0
+        });
+      }
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiParticles.forEach(p => {
+        ctx.beginPath();
+        ctx.lineWidth = p.r;
+        ctx.strokeStyle = p.color;
+        ctx.moveTo(p.x + p.tilt + (p.r / 3), p.y);
+        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+        ctx.stroke();
+      });
+      updateConfetti();
+    }
+
+    function updateConfetti() {
+      confettiParticles.forEach(p => {
+        p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+        p.x += Math.sin(0.01 * p.d);
+        p.tiltAngle += p.tiltAngleIncremental;
+        p.tilt = Math.sin(p.tiltAngle) * 15;
+
+        if (p.y > confettiCanvas.height) {
+          p.x = Math.random() * confettiCanvas.width;
+          p.y = -10;
+        }
+      });
+    }
+
+    let confettiActive = false;
+    function startConfetti() {
+      if (confettiActive) return;
+      confettiActive = true;
+      createConfetti();
+      let frame = 0;
+      function animate() {
+        drawConfetti();
+        frame++;
+        if (frame < 480) { // 8 seconds at 60fps (was 180 for 3 seconds)
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+          confettiParticles = [];
+          confettiActive = false;
+        }
+      }
+      animate();
+    }
+
+    // Polaroid logic
+    const email = document.getElementById("email");
+    const polaroids = document.querySelectorAll(".polaroid");
+    const birthdayText = document.querySelector('.birthday-text');
+    const topHelloKitty = document.getElementById('top-hellokitty');
+    let opened = false;
+
+    email.addEventListener("click", () => {
+      if (opened) return;
+      opened = true;
+
+      // Simulate email "open" with a shake
+      email.animate(
+        [{ transform: "scale(1)" },
+         { transform: "scale(1.2)" },
+         { transform: "scale(1)" }],
+        { duration: 500 }
+      );
+
+      // Show polaroids with staggered animation
+      polaroids.forEach((p, i) => {
+        setTimeout(() => {
+          p.classList.add("show");
+          // Show birthday text with the last polaroid
+          if (i === polaroids.length - 1) {
+            birthdayText.classList.add("show");
+            // Show Hello Kitty at the top
+            topHelloKitty.classList.add("show");
+          }
+        }, i * 400);
+      });
+
+      // Remove notification badge
+      email.classList.add("opened");
+
+      // Start confetti
+      startConfetti();
+    });
+  </script>
+</body>
+</html>
