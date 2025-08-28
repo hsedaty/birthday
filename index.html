@@ -159,7 +159,7 @@
       position: fixed;
       top: 100px;
       left: 50%;
-      transform: translateX(-50%) scale(0.6);
+      transform: translateX(-50%) scale(0.6) rotate(0deg);
       z-index: 200;
       opacity: 0;
       transition: opacity 0.8s cubic-bezier(.68,-0.55,.27,1.55);
@@ -170,6 +170,15 @@
     }
     .top-hellokitty.show {
       opacity: 1;
+    }
+
+    /* Fix image orientation on mobile devices */
+    @media (max-width: 900px) {
+      .top-hellokitty {
+        width: 90vw;
+        top: 30px;
+        transform: translateX(-50%) scale(1) rotate(0deg);
+      }
     }
   </style>
 </head>
