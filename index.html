@@ -2,22 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Hello Kitty 8-Bit Birthday</title>
+  <title>Kuromi 8-Bit Birthday</title>
   <!-- Import 8-bit font -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background: url("background.jpg") no-repeat center/cover;
+      min-height: 560px;
+      background: #f7a9d2;
       image-rendering: pixelated;
       font-family: 'Press Start 2P', cursive;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      /* Remove or comment out overflow: hidden to enable scroll */
-      /* overflow: hidden; */
+      overflow: hidden;
+    }
+
+    .kuromi-background {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0.48;
+      pointer-events: none;
+    }
+
+    .background-row {
+      flex: 0 0 180px;
+      width: 100%;
+      background-repeat: repeat-x;
+      background-position: center;
+      background-size: auto 100%;
     }
 
     #confetti {
@@ -77,46 +96,68 @@
     #email.opened {
       pointer-events: none;
       background: url("mail-opened.png") no-repeat center/contain;
+      opacity: 0;
+      transition: opacity 0.35s ease;
     }
 
     /* Polaroid style */
     .polaroid {
       position: absolute;
-      width: 225px;
-      height: 270px;
+      width: min(64vw, 300px);
+      aspect-ratio: 5 / 6;
       background: white;
       border: 4px solid black;
       padding: 5px;
       box-shadow: 4px 4px 0 black;
-      transform: scale(0);
+      transform: translateX(0) scale(0.78) rotate(var(--angle, 0deg));
       opacity: 0;
-      transition: transform 0.5s ease, opacity 0.5s ease;
+      transition: transform 0.38s cubic-bezier(.2,.8,.2,1), opacity 0.28s ease;
       image-rendering: pixelated;
       z-index: 5;
+      pointer-events: none;
     }
 
-    .polaroid img {
+    .polaroid > img:not(.signature) {
       width: 100%;
-      height: auto;
+      height: calc(100% - 22px);
+      object-fit: cover;
       image-rendering: pixelated;
+      -webkit-user-drag: none;
+      user-select: none;
     }
 
-    .show {
-      transform: scale(1) rotate(var(--angle));
+    .polaroid .signature {
+      position: absolute;
+      right: 9px;
+      bottom: 9px;
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      object-position: right bottom;
+      image-rendering: pixelated;
+      filter: drop-shadow(2px 2px 0 #fff);
+      pointer-events: none;
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+
+    .polaroid.active {
+      transform: translateX(0) scale(1) rotate(var(--angle, 0deg));
       opacity: 1;
+      z-index: 6;
     }
 
     .birthday-text {
       position: fixed;
-      bottom: 100px;
+      bottom: 24px;
       left: 0;
       width: 100vw;
       text-align: center;
       font-family: 'Press Start 2P', cursive;
-      font-size: 5rem;
+      font-size: 2.1rem;
       color: #fff;
       text-shadow: 4px 4px 0 #ff69b4, 10px 10px 0 #000;
-      letter-spacing: 4px;
+      letter-spacing: 0;
       line-height: 1.2;
       z-index: 50;
       user-select: none;
@@ -130,97 +171,222 @@
       transform: scale(1);
     }
 
-    /* Center polaroids in a row below the mail icon */
-    .polaroid-center {
+    /* Centered, single-card carousel */
+    .carousel {
       position: fixed;
-      top: 55%;
+      top: 50%;
       left: 50%;
-      transform: translate(-50%, -70%);
+      transform: translate(-50%, -50%);
       display: flex;
-      flex-direction: column;
-      gap: 82px;
-      z-index: 20;
-      pointer-events: none;
-      width: auto;
+      justify-content: center;
       align-items: center;
+      z-index: 20;
+      width: min(96vw, 560px);
+      height: min(64vh, 390px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s ease;
+      touch-action: pan-y;
     }
-    .polaroid-row {
+
+    .carousel.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .carousel-track {
+      position: relative;
+      width: min(64vw, 310px);
+      height: min(76.8vw, 372px);
       display: flex;
-      gap: 100px;
       justify-content: center;
       align-items: center;
     }
-    .polaroid-center .polaroid {
-      position: static;
-      pointer-events: auto;
+
+    .carousel-button,
+    .reroll-button {
+      border: 3px solid #000;
+      background: #ff69b4;
+      color: #fff;
+      box-shadow: 4px 4px 0 #000;
+      font-family: 'Press Start 2P', cursive;
+      cursor: pointer;
     }
 
-    .top-hellokitty {
+    .carousel-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      padding: 0;
+      font-size: 24px;
+      z-index: 10;
+    }
+
+    .carousel-button:active,
+    .reroll-button:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    .carousel-button:active {
+      transform: translateY(-50%) translate(3px, 3px);
+    }
+
+    .previous-card { left: 0; }
+    .next-card { right: 0; }
+
+    .carousel-status {
+      position: absolute;
+      bottom: -38px;
+      color: #fff;
+      font-size: 11px;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .reroll-button {
       position: fixed;
-      top: -50px;
+      top: 24px;
+      right: 24px;
+      z-index: 210;
+      padding: 14px 18px;
+      font-size: 11px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s ease;
+    }
+
+    .reroll-button.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .top-kuromi {
+      position: fixed;
+      top: -34px;
       left: 50%;
-      transform: translateX(-50%) scale(0.6) rotate(270deg);
+      transform: translateX(-50%);
       z-index: 200;
       opacity: 0;
       transition: opacity 0.8s cubic-bezier(.68,-0.55,.27,1.55);
       pointer-events: none;
-      width: 700px;
+      width: 190px;
       height: auto;
       image-rendering: pixelated;
     }
-    .top-hellokitty.show {
+    .top-kuromi.show {
       opacity: 1;
     }
 
-    /* Fix image orientation on mobile devices */
-    @media (max-width: 900px) {
-      .top-hellokitty {
-        width: 90vw;
-        top: 10px;
-        transform: translateX(-50%) scale(1) rotate(270deg);
+    @media (max-width: 600px) {
+      .background-row {
+        flex-basis: 120px;
+      }
+
+      .top-kuromi {
+        width: 150px;
+        top: -28px;
+      }
+
+      .carousel-button {
+        display: none;
+      }
+
+      .birthday-text {
+        bottom: 18px;
+        padding: 0 12px;
+        box-sizing: border-box;
+        font-size: 1.15rem;
+        line-height: 1.5;
+        text-shadow: 3px 3px 0 #ff69b4, 6px 6px 0 #000;
+      }
+
+      .reroll-button {
+        top: auto;
+        right: 14px;
+        bottom: 96px;
+        padding: 12px;
+        font-size: 9px;
       }
     }
   </style>
 </head>
 <body>
+  <div class="kuromi-background" aria-hidden="true"></div>
   <canvas id="confetti"></canvas>
-  <!-- Hello Kitty image at the top, hidden initially -->
-  <img src="hellokitty.png" alt="Hello Kitty" class="top-hellokitty" id="top-hellokitty">
+  <!-- Kuromi image at the top, hidden initially -->
+  <img src="kuromimain.png" alt="Kuromi" class="top-kuromi" id="top-kuromi">
 
   <!-- Centered Email Icon -->
   <div class="email-container">
     <div id="email"></div>
   </div>
 
-  <!-- Centered Polaroids -->
-  <div class="polaroid-center">
-    <div class="polaroid-row">
+  <!-- Add more .polaroid elements here; the carousel has no card limit. -->
+  <div class="carousel" id="carousel" aria-label="Birthday photo cards">
+    <button class="carousel-button previous-card" type="button" aria-label="Previous photo card">&lt;</button>
+    <div class="carousel-track">
       <div class="polaroid" style="--angle:-15deg;">
-        <img src="kitty1.png" alt="Polaroid 1">
+        <img src="IMG_2918.JPG" alt="Polaroid 1">
       </div>
       <div class="polaroid" style="--angle:-7deg;">
-        <img src="kitty2.png" alt="Polaroid 2">
+        <img src="IMG_4436.JPG" alt="Polaroid 2">
       </div>
       <div class="polaroid" style="--angle:0deg;">
-        <img src="kitty3.png" alt="Polaroid 3">
+        <img src="IMG_4439.JPG" alt="Polaroid 3">
       </div>
-    </div>
-    <div class="polaroid-row">
       <div class="polaroid" style="--angle:7deg;">
-        <img src="kitty4.png" alt="Polaroid 4">
+        <img src="IMG_4443.JPG" alt="Polaroid 4">
       </div>
       <div class="polaroid" style="--angle:12deg;">
-        <img src="kitty5.png" alt="Polaroid 5">
+        <img src="IMG_4548.JPG" alt="Polaroid 5">
       </div>
       <div class="polaroid" style="--angle:18deg;">
-        <img src="kitty6.png" alt="Polaroid 6">
+        <img src="IMG_4662.jpg" alt="Polaroid 6">
+      </div>
+      <div class="polaroid" style="--angle:-15deg;">
+        <img src="IMG_4688.JPG" alt="Polaroid 1">
+      </div>
+      <div class="polaroid" style="--angle:-7deg;">
+        <img src="IMG_4706.JPG" alt="Polaroid 2">
+      </div>
+      <div class="polaroid" style="--angle:0deg;">
+        <img src="IMG_4919.JPG" alt="Polaroid 3">
+      </div>
+      <div class="polaroid" style="--angle:7deg;">
+        <img src="IMG_4930.JPG" alt="Polaroid 4">
+      </div>
+      <div class="polaroid" style="--angle:12deg;">
+        <img src="IMG_4992.JPG" alt="Polaroid 5">
       </div>
     </div>
+    <button class="carousel-button next-card" type="button" aria-label="Next photo card">&gt;</button>
+    <div class="carousel-status" aria-live="polite"></div>
   </div>
 
+  <button class="reroll-button" type="button">REROLL</button>
   <div class="birthday-text">HAPPY BIRTHDAY NADA!!!</div>
 
   <script>
+    const background = document.querySelector('.kuromi-background');
+    const backgroundImages = ['bg1.jpeg', 'bg2.jpeg', 'bg3.jpeg'];
+
+    function buildBackground() {
+      const rowHeight = window.innerWidth <= 600 ? 120 : 180;
+      const rowCount = Math.ceil(window.innerHeight / rowHeight) + 1;
+      background.replaceChildren();
+
+      for (let index = 0; index < rowCount; index++) {
+        const row = document.createElement('div');
+        row.className = 'background-row';
+        row.style.backgroundImage = `url("${backgroundImages[index % backgroundImages.length]}")`;
+        background.appendChild(row);
+      }
+    }
+
+    buildBackground();
+
     // Confetti animation
     const confettiCanvas = document.getElementById('confetti');
     const ctx = confettiCanvas.getContext('2d');
@@ -300,12 +466,74 @@
       animate();
     }
 
-    // Polaroid logic
+    // Photo card carousel
     const email = document.getElementById("email");
-    const polaroids = document.querySelectorAll(".polaroid");
+    const carousel = document.getElementById("carousel");
+    const carouselTrack = carousel.querySelector(".carousel-track");
+    const previousButton = carousel.querySelector(".previous-card");
+    const nextButton = carousel.querySelector(".next-card");
+    const carouselStatus = carousel.querySelector(".carousel-status");
+    const rerollButton = document.querySelector(".reroll-button");
+    const polaroids = Array.from(carousel.querySelectorAll(".polaroid"));
     const birthdayText = document.querySelector('.birthday-text');
-    const topHelloKitty = document.getElementById('top-hellokitty');
+    const topKuromi = document.getElementById('top-kuromi');
     let opened = false;
+    let currentCard = 0;
+    let touchStartX = 0;
+
+    polaroids.forEach((polaroid, index) => {
+      const signature = document.createElement("img");
+      signature.className = "signature";
+      signature.src = index % 2 === 0 ? "lemon.png" : "mintlemonade.png";
+      signature.alt = "";
+      signature.setAttribute("aria-hidden", "true");
+      polaroid.appendChild(signature);
+    });
+
+    function showCard(index) {
+      currentCard = (index + polaroids.length) % polaroids.length;
+      polaroids.forEach((polaroid, cardIndex) => {
+        polaroid.classList.toggle("active", cardIndex === currentCard);
+      });
+      carouselStatus.textContent = `${currentCard + 1} / ${polaroids.length}`;
+    }
+
+    function shuffleCards() {
+      for (let index = polaroids.length - 1; index > 0; index--) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [polaroids[index], polaroids[randomIndex]] = [polaroids[randomIndex], polaroids[index]];
+      }
+      polaroids.forEach(polaroid => carouselTrack.appendChild(polaroid));
+      showCard(0);
+    }
+
+    function moveCard(direction) {
+      showCard(currentCard + direction);
+    }
+
+    previousButton.addEventListener("click", () => moveCard(-1));
+    nextButton.addEventListener("click", () => moveCard(1));
+
+    carousel.addEventListener("touchstart", event => {
+      touchStartX = event.changedTouches[0].clientX;
+    }, { passive: true });
+
+    carousel.addEventListener("touchend", event => {
+      const swipeDistance = event.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(swipeDistance) < 45) return;
+      moveCard(swipeDistance < 0 ? 1 : -1);
+    }, { passive: true });
+
+    document.addEventListener("keydown", event => {
+      if (!opened) return;
+      if (event.key === "ArrowLeft") moveCard(-1);
+      if (event.key === "ArrowRight") moveCard(1);
+    });
+
+    rerollButton.addEventListener("click", () => {
+      shuffleCards();
+      startConfetti();
+    });
 
     email.addEventListener("click", () => {
       if (opened) return;
@@ -319,25 +547,22 @@
         { duration: 500 }
       );
 
-      // Show polaroids with staggered animation
-      polaroids.forEach((p, i) => {
-        setTimeout(() => {
-          p.classList.add("show");
-          // Show birthday text with the last polaroid
-          if (i === polaroids.length - 1) {
-            birthdayText.classList.add("show");
-            // Show Hello Kitty at the top
-            topHelloKitty.classList.add("show");
-          }
-        }, i * 400);
-      });
-
       // Remove notification badge
       email.classList.add("opened");
+
+      shuffleCards();
+      setTimeout(() => {
+        carousel.classList.add("show");
+        rerollButton.classList.add("show");
+        birthdayText.classList.add("show");
+        topKuromi.classList.add("show");
+      }, 400);
 
       // Start confetti
       startConfetti();
     });
+
+    window.addEventListener('resize', buildBackground);
   </script>
 </body>
 </html>
