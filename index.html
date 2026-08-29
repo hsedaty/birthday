@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Kuromi 8-Bit Birthday</title>
   <!-- Import 8-bit font -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -27,7 +28,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      opacity: 0.48;
+      opacity: 0.34;
       pointer-events: none;
     }
 
@@ -156,7 +157,7 @@
       font-family: 'Press Start 2P', cursive;
       font-size: 2.1rem;
       color: #fff;
-      text-shadow: 4px 4px 0 #ff69b4, 10px 10px 0 #000;
+      text-shadow: 4px 4px 0 #fa5fde, 10px 10px 0 #000;
       letter-spacing: 0;
       line-height: 1.2;
       z-index: 50;
@@ -285,27 +286,55 @@
       }
 
       .top-kuromi {
-        width: 150px;
-        top: -28px;
+        width: 210px;
+        top: 8px;
+      }
+
+      .carousel {
+        top: 48%;
+        height: 58vh;
+      }
+
+      .carousel-track {
+        width: 88vw;
+        height: 105.6vw;
+      }
+
+      .polaroid,
+      .polaroid.active {
+        width: 82vw;
+        max-width: 350px;
+        transform: translateX(0) scale(1) rotate(clamp(-7deg, var(--angle, 0deg), 7deg));
+      }
+
+      .polaroid .signature {
+        width: 70px;
+        height: 70px;
       }
 
       .carousel-button {
         display: none;
       }
 
+      .carousel-status {
+        top: calc(50% + min(49.2vw, 210px) + 14px);
+        bottom: auto;
+      }
+
       .birthday-text {
-        bottom: 18px;
-        padding: 0 12px;
+        top: calc(48% + min(49.2vw, 210px) + 32px);
+        bottom: auto;
+        padding: 0 16px;
         box-sizing: border-box;
-        font-size: 1.15rem;
-        line-height: 1.5;
+        font-size: 1.45rem;
+        line-height: 1.4;
         text-shadow: 3px 3px 0 #ff69b4, 6px 6px 0 #000;
       }
 
       .reroll-button {
-        top: auto;
+        top: 18px;
         right: 14px;
-        bottom: 96px;
+        bottom: auto;
         padding: 12px;
         font-size: 9px;
       }
@@ -346,7 +375,7 @@
         <img src="IMG_4662.jpg" alt="Polaroid 6">
       </div>
       <div class="polaroid" style="--angle:-15deg;">
-        <img src="IMG_4688.JPG" alt="Polaroid 7">
+        <img src="IMG_4688.jpg" alt="Polaroid 7">
       </div>
       <div class="polaroid" style="--angle:-7deg;">
         <img src="IMG_4706.JPG" alt="Polaroid 8">
